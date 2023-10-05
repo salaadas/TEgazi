@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+
+case "$1" in
+	*c*)
+		
+		(echo "#define static "; \
+		 echo "#define z" $4"_Data "; \
+		 echo "#define Values" $4" "; \
+		 ./findbest $3 - $1 qd$2) > $4.c
+		;;
+	*h*)
+		(echo "extern int" $2"[];"; \
+		 echo "extern unsigned char *" $2"_Data;") > $2.h
+		;;
+esac

@@ -1,0 +1,293 @@
+Wed 16.01.2008 06:12 Bisqwit <bisqwit@iki.fi>
+
+	* Working with version 1.3.5
+	
+	* Added SDL support
+	* Added screenshots to the web documentation.
+
+Wed 01.05.2002 22:59 Bisqwit <bisqwit@iki.fi>
+
+	* Working with version 1.3.3
+	
+	* Updated the urls in the archive.
+
+Thu 11.04.2002 15:48 Bisqwit <bisqwit@iki.fi>
+
+	* Working with version 1.3.2
+	
+	* Added some web documentation for the new pages.
+
+	* Middle versions were undocumented.
+
+Thu 28.10.1999 07:29 Bisqwit <bisqwit@iki.fi>
+
+	* Working with version 1.01
+	
+	* Brainwashed all bots a bit.
+	  They may now be better or worse.
+	  
+	* Moved bot definitions out to
+	  a separate file, jt10.com.
+	 
+	* Found bug in gcc v2.95.1,
+	  see LoadComputerFile().
+	  
+	* Started work with twin game
+	
+	* Added bot editor
+	  - Does yet nothing else
+	    than resets the game.
+	    
+	* Tested with tamagoch!
+	  Ur, I mean with
+	  HP-UX tamagoch B.11.00 A 9000/898
+	  
+	* Modified io_term.c
+	  Now it uses termio.h functions,
+	  not termios.h (however, they contain
+	  the same functions... But it is
+	  different now, anyway).
+	
+	* Todo:
+	  - TCP/IP game (dual player)
+	  - High scores (possibly shared in net).
+	  - Evil blocks and cheat blocks in
+	    the Joeltris 9 -style.
+	  - Cooperative game (playing into same field)
+	  - Make audio_esd.c working in all cases.
+	  - Is it ever possible that somebody could
+	    get score of over 999999? Check it out.
+	  - Remove the field handling all out
+	    from the tetris_t, create new
+	    object type field_t, so that multiple
+	    tetrises could refer to the same field.
+	    First it would be useful in the main
+	    intro screen, then in cooperative game.
+
+Wed 27.10.1999 05:10  Bisqwit <bisqwit@iki.fi>
+
+	* Working with version 1.00
+	
+	* Renamed video modules to io modules.
+	* Moved everything from cons.* to io.*
+	* Added some selectibility to the io drivers
+	* Added dialog call to configuration script
+	
+	* Started io_ggi.c
+	* Finished io_ggi.c (07:37)
+
+	* Todo:
+	  - TCP/IP game (dual player)
+	  - High scores (possibly shared in net).
+	  - Evil blocks and cheat blocks in
+	    the Joeltris 9 -style.
+	  - Make audio_esd.c working in all cases.
+	  - Is it ever possible that somebody could
+	    get score of over 999999? Check it out.
+	  - Remove the field handling all out
+	    from the tetris_t, create new
+	    object type field_t, so that multiple
+	    tetrises could refer to the same field.
+	    First it would be useful in the main
+	    intro screen, then in cooperative game.
+
+Mon 24.10.1999 23:32  Bisqwit <bisqwit@iki.fi>
+
+        * Going to put the game to the Internet!
+        
+        * Added Joeltris 1-6.
+	* Added Joeltris 7-9
+	
+	* Todo:
+	  - Evil blocks and cheat blocks.
+	  - TCP/IP game (dual player)
+	  - High scores.
+	  - Make audio_esd.c working in all cases.
+	  - Is it ever possible that somebody could
+	    get score of over 999999? Check it out.
+	  - Remove the field handling all out
+	    from the tetris_t, create new
+	    object type field_t, so that multiple
+	    tetrises could refer to the same field.
+	    First it would be useful in the main
+	    intro screen, then in cooperative game.
+	  - Start video_ggi.c sometime.
+
+Mon 7.6.1999 18:30  Bisqwit <bisqwit@iki.fi>
+	
+	* Started work with beta6
+	
+	* What a catastroph and bankrupt!
+	  video_fb.c has become a symlink
+	  to video_term.c even inside
+	  jt10-beta5.tar.gz. I am waiting
+	  for the backup from Warp, if even
+	  he does have it...
+	  
+	* Drop-slide is now fixed.
+	
+	* Keybuffer thing is also fixed.
+	  Key presses shouldn't now get lost.
+	  
+	* 8.7.1999:
+	  The catastroph mentioned above
+	  caused a month long pause in the
+	  development of the game.
+	  Backups from video_fb.c could not
+	  be found ANYWHERE. Damn.
+	  
+	* The game is perhaps a bit slow.
+	  Fiddle with the MAIN_RATE.	  
+	
+	* Todo:
+	  - Evil blocks and cheat blocks.
+	  - TCP/IP game (dual player)
+	  - High scores.
+	  - Make audio_esd.c working in all cases.
+	  - Is it ever possible that somebody could
+	    get score of over 999999? Check it out.
+	  - Remove the field handling all out
+	    from the tetris_t, create new
+	    object type field_t, so that multiple
+	    tetrises could refer to the same field.
+	    First it would be useful in the main
+	    intro screen, then in cooperative game.
+	  - Start video_x.c sometime.
+	  - Locate the video_fb.c from SOMEWHERE and
+	    then backup it to at least five different
+	    places. Then check, if it could be
+	    optimized  for speed.
+		
+Mon 7.6.1999 18:30  Bisqwit <bisqwit@iki.fi>
+
+	* Started work with beta5
+	
+	* Started work with the Linux
+	  framebuffer system (video_fb.c).
+	  - Supporting only 8-bit video modes.
+	  - Selects the nearmost mode to 640x384.
+	  - Cool antialias and transparency effects.
+	  - All the features of video_term.c are now
+	    working in video_fb.c also. Including the
+	    timered blocks (Have you ever played the
+	    Lemmings game? There's a button which makes
+	    them to self-destruct, showing the number
+	    on their head, indicating seconds left to
+	    the *boom*. This means the similar :)).
+	  
+	* Added Noisy-flag to the bots.
+	
+	* Added Sim-bot.
+	
+	* Removed Demo mode, added tetris
+	  intro (2*Dip) to the main logo
+	  screen. (Disablable (misc.h).)
+	  
+	* Fixed video_term.c.
+	  Now non-transparent blocks do not
+	  overwrite transparent ones, and
+	  it works better now.
+	  Also, QField is no longer public,
+	  and there are no *Color[] arrays.
+	  
+	* Added audio_ossmidi.c. It gets now never normally
+	  automatically selected, but can be manually
+	  enabled from config.h. Sounds quite funny on
+	  my AWE32 card.
+	* Started work with keybuffer system.
+	  See Todo below. It does not work yet,
+	  though. Disabled.
+	  
+	* Todo:
+	  - Evil blocks and cheat blocks.
+	  - Some keypresses may be lost sometimes.
+	    Fix this by buffering the keystrokes
+	    at the S_GAME state.
+	  - TCP/IP game (dual player)
+	  - High scores
+	    . Think about the possibilities of
+	      flock() and lockf() and fcntl().
+	  - Make audio_esd.c working in all cases.
+	  - Is it ever possible that somebody could
+	    get score of over 999999? Seems very
+	    unprobable to me. Check it out anyway.
+	  - Remove the field handling all out
+	    from the tetris_t, create new
+	    object type field_t, so that multiple
+	    tetrises could refer to the same field.
+	    First it would be useful in the main
+	    intro screen, then in cooperative game.
+	  - Start video_x.c sometime.
+	  - Check, if video_fb.c could be optimized
+	    for speed.
+
+Wed 2.6.1999 03:22  Bisqwit <bisqwit@iki.fi>
+
+	* Started work with beta4
+	
+	* Added clock
+	
+	* Added multiple, selectionable
+	  computer opponents, Dip, Zap,
+	  Blip and Dak.
+	  
+	* Added configurable settings
+	  for the bots.
+	  See tetris.h for more.
+	  
+	* Added autoadjust for computer
+	  players' speed.	 
+
+	* Todo:
+	  - Dreams. I should be tired now.
+	  - More computer opponents and
+	    more configurability.
+	  - Evil blocks and cheat blocks.
+	  - TCP/IP game (dual player)
+	  - High scores
+	    . Think about the possibilities of
+	      flock() and lockf() and fcntl().
+	  - Make video_fb.c working.
+	  - Make audio_esd.c working in all cases.
+	  
+Tue 1.6.1999 02:15  Bisqwit <bisqwit@iki.fi>
+
+	* Started work with beta3
+	
+	* Tested with SunOS
+	 - Thanks to Warp (http://iki.fi/warp/)
+	
+	* Added computer opponent
+	  - It is an excellent player. :)
+	  - Todo:
+	    . Notice the next block
+	    . Now it either drops the blocks as soon
+	      as it can, or just plays relaxed,
+	      but there should be a midpoint too?
+	   
+	* Todo:
+	  - Evil blocks and cheat blocks.
+	  - Dreams. I should be tired now.
+	  - TCP/IP game (dual player)
+	  - High scores
+	    . Think about the possibilities of
+	      flock() and lockf() and fcntl().
+	  - Make video_fb.c working.
+	  - Make audio_esd.c working in all cases.
+
+Sun 30.5.1999 02:14  Bisqwit <bisqwit@iki.fi>
+
+	* ChangeLog, README, INSTALL, everything else
+	  - beta2 revision
+	 
+	* Tested with Linux
+	
+	* Todo:
+	  - TCP/IP game (multiplayer (two?))
+	  - Computer opponent
+	  - Synchronized sound output on
+	    smaller sampling rates also
+	    . is it possible?
+	  - High scores
+	    . how should it be done in multitasking
+	      and multiuser environment?

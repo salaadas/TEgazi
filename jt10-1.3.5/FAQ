@@ -1,0 +1,119 @@
+
+                                 Potential
+			Frequently Asked Questions
+			     about Joeltris 10
+			     
+			    written by Bisqwit
+			   as is the game too...
+			     
+
+Q:The screen looks horrible! The game is hardly playable
+  on white background! Could you ever have designed this
+  more poorly?
+A:Don't use terminals which default to white background.
+  With xterm, use "xterm -bg black -fg white" and you will
+  be satisfied. If you have libggi installed (I recommend
+  you to have), use ggi target instead of vt100 target.
+  ggi is cool.  
+
+Q:Do you really need to frequently answer to the same questions?
+A:No. This file actually consists of answers to _potential_
+  frequent questions. All of the questions have not necessarily
+  been asked.
+
+Q:Explain the name of the game.
+A:The real first name of the author is Joel,
+  and this is his tenth tetris-game.
+  
+Q:Why isn't it Bisqtris then?
+A:Historical reasons. There exist nine other Joeltrises already.
+
+Q:I haven't seen any of Joeltris 1..9 in net.
+  Do they really exist?
+A:"I haven't seen God. Does he exist?"
+  Joeltrises 1-9 exist in this archive. They
+  should've extracted to the directories jt1-6
+  and jt7-9 respectively.
+  Well, Joeltrises 1..5 were written with QBasic,
+  jt6 was written also with QBasic but for Tandy 1000
+  (equipped with 8088 processor).
+  Joeltrises 7..9 (Turbo Pascal as language) were each
+  independently more or less not good projects, or
+  required too much about the development enviroment
+  (like X00 fossil driver libraries)... They had
+  good ideas anyway (like built-in scripting language,
+  which enabled to write a fractal background animation
+  in vt100 mode).
+  As exception, Joeltris 10 is written in C, PCX and S3M.
+  For more details, see http://iki.fi/bisqwit/jt10.html
+  which is the homepage of the saga of Joeltris.
+
+Q:Why does the computer moan "damn" etc sometimes?
+A:Really? Strange... ;)
+
+Q:A computer player broke laws!
+  I saw it! It did an impossible move!
+A:Really? Maybe you should try the same. Sometimes
+  the space bends around massive gravity fields...
+
+Q:When I play against computer, I see my next block, but
+  I don't see the next block of the computer player.
+A:That's because the computer player does not use the next
+  block information. It plays only one block at a time.
+  It would be too expensive to put it calculating the
+  possibilities with two sequential blocks.
+  The computer players play goodly
+  without that information anyway :)
+
+Q:How good are the computer players, actually?
+A:In version beta6, when level 13 was the last different
+  level and levels above 13 were clones of level 13,
+  Dip made score of 250918 with lines 1156 at level 38.
+  It took approximately 20 minutes. At the same time,
+  my record from two days ago was about 68000.
+  Other computer players have not been much tested,
+  but they are not so good players. Dat is able to
+  get about 13000, Blip about 8000, Dak few hundreds
+  and Sim, imitating Microsoft (making windows), less
+  than 1000.
+
+Q:Why is the feature xxx missing from this game?
+A:Read the ChangeLog file to see if I have ever been planning
+  to add the feature xxx to this game. If I haven't, then you
+  possibly need to notice me with that to my email address,
+  which is bisqwit@iki.fi .
+
+Q:The musics of the game sound familiar...
+A:They are from several NES games. Great ones, even :)
+  Try audiotest.
+
+Q:The sound effects of the game are poor.
+A:Too little innovation maybe has been a reason.
+  The sound effects are produced with similar
+  technology than the NES hardware includes.
+  Try audiotest.
+
+Q:What is the midi thing?
+A:You need /dev/sequencer and a midi device
+  for that to work.
+
+Q:I have problem xxx installing the game.
+A:Did you read the installation instructions?
+  Read the file INSTALL.
+
+Q:I run SETI@home clients in my computer, and
+  the game is terribly slow and the music chops.
+  What to do?
+A:Adjust the priority of the SETI@home clients by
+  passing -nice 2 parameter to them or starting
+  them by command line "nice -2 setiathome".
+
+Q:I am not running any CPU-expensive in my
+  computer and the game is terribly slow anyway.
+A:Then your hardware is slow. I am sorry.
+
+Q:I don't know what to ask. What should I ask?
+A:If that's your problem, meet me in the ircnet
+  and ask me personally. If I'm there, I use the
+  nick brobisqu or Bisqwit, depending on mystical
+  things.

@@ -1,0 +1,75 @@
+	
+	Joeltris 10
+	
+Tetris game for unix systems
+
+This documentation will be extended when there is time and need for it.
+
+Game idea:
+	Pack the dropping blocks as tight as you can,
+	rotating them if necessary and to keep the stacks
+	as low as possible, as long as possible.
+	
+Problems:
+	See FAQ.
+	
+Game name:
+	See FAQ.
+	
+Author:
+	Bisqwit	(all the bit-work, images and the typing)
+	
+Thanks to:
+	Alexey Pazhitnov (Concept)
+	Warp (SunOS beta testing) (http://iki.fi/warp/)
+	Konami (Music themes from Castlevania 1 & 2)
+	Nintendo (Music theme from Tetris)
+	ASO (Music themes from Tetris)
+	(Music theme from Solstice)
+	
+Additive thanks to (this is for the "1991 NEW VERSION"):
+	Vadim Gerasimov (Design)
+	Ed Logg (Programming)
+	Kris Moser (Video graphics)
+	Brad Fuller (Audio)
+	
+Sound modules (audio_*.c)
+	Mostly from the EsounD archive, some (like
+	audio_esd.c and audio_ossmidi.c) developed
+	laterwards for this game.
+	
+Miscellaneous
+	Use audiotest to test your audio hardware,
+	iotest to test your display hardware.
+	iotest has the same commandline usage as joeltris10.
+
+Usage
+	joeltris10 [dispdev [xres yres vxres vyres]]
+	
+	  dispdev can be either vt100, ggi or sdl.
+	  Which one is default, is set on ./configure.
+	  
+	  xres, yres, vxres and vyres mean the
+	  visible and virtual x- and y-resolutions.
+	  They are effectful only with the ggi driver
+	  and the SDL driver, skipped with vt100 driver.
+	  default xres,yres, vxres,vyres
+	  settings are: auto auto 640 384
+	  
+	  To set which device does libggi draw to,
+	  read the libggi documentation.
+	  Examples:
+	      export GGI_DISPLAY=svga
+	      export GGI_DISPLAY=palemu
+	  X and fbdev are automatically detected.
+	  fbdev may need specifying the resolution
+	  values to not confuse your monitor.
+	
+Legal
+	Joeltris 10 is under GPL (see COPYING).
+	Now, should here stand something useless
+	like "all trademarks are property of
+	their respective owners"?
+
+--
+Bisqwit (mailto:bisqwit@iki.fi, http://iki.fi/bisqwit/)

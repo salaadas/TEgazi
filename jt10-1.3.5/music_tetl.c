@@ -1,0 +1,60 @@
+#define static 
+#define z music_tetl_Data 
+#define Values music_tetl 
+int Values[]={3692 /* size */, 12544, /* rows */
+	0 /* loop */, 134 /* xor */, 7, /* compr */
+	10  /* depf */, 8 /* len */,
+	64 /* count */, 172 /* roll */,
+	510 /* tempo */
+};typedef unsigned char by;
+/* This source was optimized with Findbest of the Bisqwit's Midtools pack */
+static by*z=(by*)"+l=6*mM*JlmZmom+mom)omm5lmm=nmmMbmmmZmmmKmmm)mmm5lmm=nmmMbm"
+"mmZmmmKmmm)mmm5lmm=nmmMbmmmZmmmKmmm)mmm5lmm=nmmMbmmmZmmmKmmm)mmm5lmm=nmmMbmm"
+"mZmmmKmmm)mmm5lmm=nmmMbmmmZmmmKmmm)mmm5lmm=nmmMbmmmZmmmKmmm)mmm5lmm=nmmMbmK3"
+"ZMJm*m+l7oN2*@:f]Rm):J)5N*F6o1`Ef]RmB=5(J4HoM2*@SYYK*bT<mOlanecm*LbZ+5:W)H(+"
+"5N5A<*=FNZMNc*n*o+f(V)JUZ5JD9+oN2*\\+f=RM:mJlMoN2*@bgmK*RW?=5(JAdn]cMYmTm)bK"
+")5N*G<206N*LF`JmbX+b+`)R725*=n<:*mMRZm:fYK*R7;mHl7o1`=dYK*BKBm5(J8`nN2*LSYMU"
+"m<mOl=B4>NJ+6c*H:Z+W[U)DI35F4B=*9NNJX6oJE@X+W[>:=5(JD*o)`5f=RmE=5(J7<nmR^cc:"
+"*fXTm?mAlenMZ>Bb*)2XKmUJ)0I=5^4F<R>\\L*Tbb*W;d+(:OG=5(J0FoM2*\\2gYK*BHFm5(J1"
+"<oN2*TbfmK*bH)B+15V7?=:1\\NJ^Z`JCS[+3IW8=5(J30oM2*0XXYK*B(1m5(JK<2CDN:DCcJXH"
+"[+^*Q)@KD5B2_<beDN*XGc*4R[+C+Z)fH>5ZM1<B+^N:<Cc*1Jg+_:Q)4HU5ZGE<:\\^N:Xf`J^n"
+"m+X`I)BRD5^:D<JKVNJo_bJ72X+Qef)B*35V7d<:1ZNZd_b*48d+C;^)l_D521H<be(OJ^Bc*4P`"
+"+R8U)@=7WL<6*GF`m:*N[+DJ_)4(YJL<6*9*`m:*N[+DJW)XHT5R7E<:DBOZ^f`JX@f+>6Q)>VD5"
+">6C=JmBN:n_b*l1X+>J^)8=7SL<6*=V`=gMPmFm56O0<J(FN*0J`fYK*bK9mUl=oM`EgYK*b+GmP"
+"lGoQ`EfYK*b+;mHl7o1`m*0:[+R*P)@=7VL<6*=:`Uf=SM8m5^L0<J(FN*0J`*bKX+JHH)2205Z)"
+"L<*RmM*:mm*Jlm+*Oo?=5(J5dn]cMYmTm)*0=5J(F<*LJL*oSb*Q9;UU)+Z)Olanec]Ym+PUH):+"
+"F5*FV=JlFN*:cc*FJX+*7W)*=75:GF<J]nN*V+o*Jlm+*om)*`m5*fm=*R>O*(Rb*K9Z+(ZR*m5("
+"JTP?M2*@RdmK*2_)bK)5N*G<J5NO*LJm*L2l+RGnCY5(J4ToM2*8a*LbZ+5:W)b+E5J5b=J5B4Al"
+":*f[+O6V)lJ552(8<BZ6N*X3c*[@X+2KV)X)+ZT=6*U*am:*6Y+TKK)mm)5LJW<29VN*;*`J9bf+"
+"WKX)T+M5Z=K<bWlL*`CBdmK*2Q)T+)5B*;<:4<O:CFlJCZe+<VJBY5(J?<2L@NZ4RcJH8Z+VeI)8"
+"S55F7<<B>6*Al:*nKQc)+:7\\l=6*EZ@l:*>+Qm)+Z7PT=6*9R`m:*N[+^JW)XHT5R7E<:DBOZ^f"
+"2gnK*BHFm5(J1<Z(^N*)>nJVC[+CWW)0145Z(^<R7@OJKlm*)7e+1*U)X315B+^<R7@OZ:lmJVoa"
+"+Hnm):OH5ZM><Bo@L:C2cJg)c+C;^)B2E521G<JK2LZ77c*4lm+mlR)@=7WT=6*1F`]fMSm8mST="
+"6*3V`=gMPmFm5BM2H?M2*82dM^mBm[l=Bl<N:5Fb*=BZ+^*I)@+65Z(5<R7nN:DBc*_*[+C[K)>6"
+"FVT=6*3:`Uf=SM8mPT=6*1R`Eg]PMGm5FM5J?M2*D*d=^MBmZl=Bl<N:5NbJ]Cf+4HH)XH(5R72<"
+"21`NJDJb*4Pf+CKW)T765215<BDnN:CWc*4Hg+48Q)01G5f(L<bAHN:lOb*+RZ+>ZH)\\*45N*+="
+"bn>N*Fbb*0JUQc)+Z)\\l=6*EN*7ZaJEYZ+_5K)6*75:+n<*L:O*=Za*Jlm+*om)*`m5*fm=*R>L"
+"*@K0gnK*bKFm5(J1<J(bO*:mm*J4c+n7c)B<05*fm=*RmM*:mm*Jlm+*7WFY5(J28oM2*d0ZMJm*"
+"m+lc_L2*DKemK*RILQ5(J4`oM2*@c*=bZ+5Z^)H(+5N5O<*=:NZMNc*n:3]GLQ5>>=<Z)bN:+3be"
+"`K*RI)f(=`D=6*CRaEe]\\MOm5nDD<R\\:N*@SoJ)S[+2XJ)6*5aD=6*?^am:*fX+LZK)<JC567("
+"<*=0OZMNc*n:S\\GOQ5>>=<Z)bN:+3b*f`[+nJ5NQ5(J>ZoIa5e=\\MAQ5(J<<Z)@NZ0>bJ=b[+H"
+"JV)6(+5R1=<B>JN*8JcJn::_g)+Z3nD=6*EZam:*V[+VIKLm5(J8<RMLNZ)2`*H:Z+W[U)DI35F4"
+"mb_XAo*;I[+C*T)b4+mD=6*EN:^VcJUAK\\MOm`lgoM:Cfb*OH[+]FT)JSB5>E(<2nBNZN2b*+B["
+"\\g)+Z(al=6*UNJ4Bb*):g+6KJ)0I=5^4F<R>nSAGe`+V(I)X*>5Z?(<:mBNJgfb*TR+\\g)+Z6b"
+"l[oIa5e]_g)+Z45R+0<J64NZ4RcJA:Z+N8I)V(45R)9<B>6FAo:*n;Zg)+:(+m=6*1NZ(^2bMZmM"
+"Q5(J6loM2*DbJ7B[+BeK)6*(5^*1<J7^NJ9ZbJXB[+C[_)fH15V7^<BDBZAo:*V*]m)+Z(5^*1<Z"
+"nFRam:*fc+gGK@m5(J4<J+DNZW+cJ:2X+^JW)@KD5V7D<Z:6?Ao:*VZ^m)+Z(5^*1<2C0N:+BbJ:"
+"B[^mCm[D=6*36am:*^Z+1ZH)4H(5F*4<26D*Ao:*V*^m)+Z(5^*1Jo)amJKRZ+7JK)6K(5B(4<21"
+"^NZA^b*)J[+>f_)`>45FD(=:X@O:CCc*Y`X+W7Q)>Q15FD:<B]DNJ][cJMI[+YHW)VW:5>1H<:D("
+"OZ^2`J*H[+5JH)`^15^L)^oAaed]_m)d=)5^LW<R7VO:DJc*);f+WWT)b*)5ZE?<befNJJGbJPQ["
+"+WWW)>1(56B4<J]VN:DN`JPYZ+YHT)VW;5>16<ZC>NZ^>`J`YZ+X(V)TW15J0><b*FN:UOcJgA[+"
+"7DK)^=<5^L1<:d>N:1ncJ^B[+@KK)X(>5B2E<R^(OJ`CbJV0[+O4H)l?55FD2<2l>N*mWbJX@Y+*"
+"d*EQ5(J(Noa`eg]Qm)VK65nA9<Rl>N:D*c*aA[+YXI)T365>1D<21RN:nKb*M;[+YXT)VW(5>14<"
+"2CbNZe>+e`K*b*Nmbl[oIamJ*)X+QEH)D155V><<JP:N:6:c*31Y+S4I)<JA+E=6*e6n=bMZmJmo"
+"D=6*=fa]eM]mLm5^?6<J*0N*b2b*+2[+F*7KQ5(JA6l1nEb]ZmMQ5(J5lomamem]MLQ5(J2boM2*"
+"P:e`K*2(Om5(J0<*=:O*=:c*XJX+(HH)b465J*0<ZN6N*VFb*bSZ+I*H)RJ)52)<<bK6NJ*Vb*Jl"
+"m+*om)*0W5f8(<:*8N*7:Kb`K*2(Hm5(J0<J(RN*1Sb*JHX+@TH):+>5:D(<:*NNJNKbJmAZ+(:H"
+")R*0566F<R0RNZaRb*o3[+)fH)*=75J(R<JPRN*@[a*Z9[+`9H)4R7lD=6*=baee]]MMm5J(L<Jl"
+"4NZ*FbJn9*\\g)+:6bl=6*SN:5R:e`K*2(Om5(J0<Z2:NZ;>b*+2[+`YV)4R75>57<RK0N:5Kb*0"
+"bZ+^FT)>>35*C><RQFN*X:c*\\KX+fEH)8J35lM(<:VVN*eZb*(HX+b+P)*`m5*fm=*RmM*:UaJ7"
+"B6";

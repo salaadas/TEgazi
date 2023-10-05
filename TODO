@@ -1,0 +1,20 @@
++-----------------------------------------------+
+| Tegazi 0: Normal tetris, competing against AI |
++-----------------------------------------------+
+
+Thank you bisqwit for the motivation.
+
+``` sidenote
+I want to make something that resembles Wario's Wood game from the NES
+It also must have a mode that is similar to Koopa Krunch from Mario Party Advance
+```
+
+>>> But now, I'm making a normal tetris game first, to explore the mechanics and
+also implement Pierre Delacherie's algorithm
+
+So, here are the TODOs:
+
+- [ ]: Original tetris game (Tegazi 0)
+  - [ ]: Tetris arena, with blocks collisons
+  - [ ]: Combos, kicks, t-spins (will we support this in Tegazi++ ?)
+  - [ ]: Rendering the arena

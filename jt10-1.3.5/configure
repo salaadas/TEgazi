@@ -1,0 +1,354 @@
+#!/bin/sh
+#
+# Todo: Interactive setup
+
+vers=`grep VERSION Makefile|sed -e s/Version// -e 's/"//g' -e 's/''\\\\//g'|cut -d\  -f4 2>/dev/null`
+echo "Running Joeltris 10 (version $vers) source code level configuration..."
+
+. ./config.sub1
+
+ac_found_sound=no
+
+. ./config.sub2
+
+INSTALL=install
+LDLIBS=""
+
+test -n "$LDFLAGS" || LDFLAGS="-pipe"
+
+echo $ac_n "Checking for gcc... "$ac_c
+
+test -f `which gcc 2>&1 |cut -d\  -f1` && CC=gcc
+if test -n "$CC"; then
+  echo $CC
+  CPP=gcc
+  CPPFLAGS="-Wall -W -pedantic -pipe"
+  CFLAGS="-O3 -funroll-loops -fomit-frame-pointer"
+else
+  echo no; CC=cc; LDFLAGS=""
+fi
+
+echo $ac_n "Checking for a BSD compatible install... "$ac_c
+for ac_t in ginstall scoinst install; do
+  if test -z "$INSTALL"; then
+    test -f `which $ac_t 2>&1 |cut -d\   -f1` && INSTALL=$ac_t
+  fi
+done
+if test -n "$INSTALL"; then
+  echo $INSTALL
+else
+  echo not found
+  echo '  - Configuration terminated.'
+  echo
+  exit 1
+fi
+
+echo $ac_n "Thinking... "$ac_c
+rm -f conftest.h
+cat > ./conftest.h <<EOF
+#ifndef __jt10_config_h
+#define __jt10_config_h
+/* Defines for Joeltris 10 - generated automatically by $0 */
+
+/* io.c defs:
+**    definitions for io_term:
+**      Set HIDE_CURSOR to 0, if your terminal does not
+**      support hiding cursor, or if you want to debug
+**      the io_term module.
+**      CLEAR_SCREEN_AT_END and HIDE_CURSOR are
+**      only effectful for io_term module.
+**      If you are using io_term module and you are
+**      using xterm and the colours do not work as they
+**      should or if you are going to run the game with
+**      any other possible broken terminal with io_term,
+**      Set BROKEN_TERM to 1.
+**      DEFAULT_IO was selected with $0.
+*/
+
+#define HIDE_CURSOR 1
+#define CLEAR_SCREEN_AT_END 0
+#define BROKEN_TERM 0
+EOF
+echo Done
+
+AC_INCLUDES="sys/soundcard.h soundcard.h machine/soundcard.h \
+	sys/audio.h sys/audioio.h sys/audio.io.h sun/audioio.h \
+	dmedia/audio.h sys/soundlib.h sys/asoundlib.h \
+	sys/ioctl.h sys/io.h termios.h termio.h \
+	linux/vt.h linux/fb.h ggi/ggi.h SDL/SDL.h \
+	esd.h"
+. ./config.sub3
+
+if test "$CC" = "gcc"; then
+  echo $ac_n "Checking for vsnprintf... "$ac_c
+  rm -f conftest.c
+  echo "#include <stdio.h>" >conftest.c
+  echo "#include <stdarg.h>" >>conftest.c
+  echo "int test(char *a,...){va_list b;char Buf[99];va_start(b,a);vsnprintf(Buf,98,a,b);va_end(b);return 0;}">>conftest.c
+  echo "int main(void){return test(__FILE__);}">>conftest.c
+  $CC -Wall -W -Werror -c -o conftest.o conftest.c 1>/dev/null 2>&1
+  if test "$?" = 0; then
+    echo "yes, cool"
+    echo "#define HAVE_VSNPRINTF" >> conftest.h
+  else
+    echo "no"
+  fi
+fi
+
+iosel='vt100 (text) on'
+if test "$ac_has_ggi_ggi_h" = yes; then
+  iosel="$iosel ggi (graphics) off"
+fi
+if test "$ac_has_SDL_SDL_h" = yes; then
+  iosel="$iosel SDL (graphics) off"
+fi
+
+sndsel='none (No_sound_or_music) off'
+
+if test "$ac_has_sys_soundcard_h" = yes || \
+   test "$ac_has_machine_soundcard_h" = yes || \
+   test "$ac_has_soundcard_h" = yes; then
+     if test "$host_cpu" = powerpc; then
+        sndsel="$sndsel DRIVER\_MKLINUX mk-linux on"
+     else
+        sndsel="$sndsel DRIVER\_OSS Open_Sound_System\n(Linux) on"
+        sndsel="$sndsel DRIVER\_MIDI MIDI_with_OSS.\n-_AWE_users,\n__consider_this. off"
+     fi
+fi
+
+if test "$ac_has_sys_audio_h" = yes; then
+     case $os_type in
+       hpux*) sndsel="$sndsel DRIVER\_HPUX HP-UX on";;
+       aix*) sndsel="$sndsel DRIVER\_AIX AIX on";;
+     esac
+fi
+
+if test "$ac_has_sys_audioio_h" = yes || \
+   test "$ac_has_sys_audio_io_h" = yes || \
+   test "$ac_has_sun_audioio_h" = yes; then
+     sndsel="$sndsel DRIVER\_SOLARIS SunOS/Solaris on"
+fi
+
+if test "$ac_has_dmedia_audio_h" = yes; then
+     sndsel="$sndsel DRIVER\_IRIX IRIX on"
+fi
+if test "$ac_has_sys_soundlib_h" = yes; then
+     sndsel="$sndsel DRIVER\_ALSA ALSA on"
+     ac_found_sound=yes
+fi
+if test "$ac_has_sys_asoundlib_h" = yes; then
+     sndsel="$sndsel DRIVER\_NEWALSA New_ALSA on"
+fi
+if test "$ac_has_esd_h" = yes; then
+     sndsel="$sndsel DRIVER\_ESD EsounD\n-_unfinished! off"
+     # Not finished...
+fi
+if test "$host_cpu" = "i386"; then
+  sndsel="$sndsel DRIVER\_ADLIB Adlib_hardware\n-_unfinished! off"
+fi
+
+echo $ac_n "Preparing config.h... "$ac_c
+cp -f conftest.h config.h
+echo "#endif" >> config.h
+echo Done
+echo $ac_n "Preparing Makefile.cfg... "$ac_c
+rm -f Makefile.cfg
+echo "Oktober=no" > Makefile.cfg
+echo "CC="$CC >> Makefile.cfg
+echo "CFLAGS="$CFLAGS >> Makefile.cfg
+echo "CPPFLAGS="$CPPFLAGS >> Makefile.cfg
+echo "LDFLAGS="$LDFLAGS >> Makefile.cfg
+echo Done
+
+if test -z "$MAKE"; then
+  MAKE=make
+fi
+
+$MAKE dialog && dialog=./dialog
+
+if test -z "$RATE"; then
+  RATE=44100
+fi
+
+if test "$dialog"; then
+  $dialog "Which io driver will be set as default?" \
+"Note: Let it be the target which you\n\
+think that it will be most used. If\n\
+your system is a multiuser box with\n\
+ssh access, vt100 (like this dialog)\n\
+won't be a bad choice." \
+           -r $iosel 2>conftest.c
+  iosel=`cat conftest.c`
+
+  $dialog "Which audio driver would you like?" \
+"(Only suitable for this\n\
+hardware have been listed)" \
+           -r $sndsel 2>conftest.c
+  sndsel=`cat conftest.c`
+
+  if test "$sndsel" != "none"; then
+    if test "$sndsel" != "DRIVER_MIDI"; then
+    if test "$sndsel" != "DRIVER_ADLIB"; then
+      $dialog "Select the audio playback rate" \
+"Even rate 8000 sounds ok, but higher\n\
+rates like 22kHz are recommended for\n\
+better realtime audio (because of the\n\
+buffering). 44100 is usually good.\n" \
+             -i "$RATE" 2>conftest.c
+      # Todo: Check ranges
+      RATE=`cat conftest.c`
+    fi
+    fi
+  fi
+else
+  echo
+  echo dialog build failed, skipping the interactive part.
+  echo
+  iosel=vt100;echo "Autoselecting '$iosel' as default io driver."
+  sndsel=none;echo "Autoselecting '$sndsel' as default audio driver."
+fi
+
+if test "$sndsel" = "DRIVER_ESD"; then
+  LDLIBS="-lesd -laudiofile -lm $LDLIBS"
+fi
+if test "$iosel" = "ggi"; then
+  LDLIBS="$LDLIBS -lggi"
+else
+  echo "#undef HAVE_GGI_GGI_H" >>conftest.h
+fi
+if test "$iosel" = "SDL"; then
+  LDLIBS="$LDLIBS `sdl-config --libs`"
+  CPPFLAGS="$CPPFLAGS `sdl-config --cflags`"
+else
+  echo "#undef HAVE_SDL_SDL_H" >>conftest.h
+fi
+
+echo Default io driver: "$iosel"
+echo Audio driver: "$sndsel"
+echo Audio playback rate: "$RATE"
+
+echo $ac_n "Checking if Oktober should be defined... "$ac_c
+if test -f /mod/nes/solstc2b.s3m && \
+   test -f /okd/bc31/intgen/intgen; then
+     Oktober=yes
+else
+     Oktober=no
+fi
+echo $Oktober
+
+echo $ac_n "Writing config.h... "$ac_c
+cat >> ./conftest.h <<EOF
+#define DEFAULT_IO "$iosel"
+
+/* sound.c defs:                           
+**  Even rate 8000 sounds ok, but higher rates like
+**  22kHz are recommended for better realtime audio.
+**  Remember to select the correct driver here for
+**  your system! For selections, see audio.c.
+**  These settings were selected with $0.
+*/
+#define RATE $RATE
+
+#undef DRIVER_ALSA
+#undef DRIVER_NEWALSA
+#undef DRIVER_OSS
+#undef DRIVER_AIX
+#undef DRIVER_IRIX
+#undef DRIVER_HPUX
+#undef DRIVER_SOLARIS
+#undef DRIVER_MKLINUX
+#undef DRIVER_ESD
+#undef DRIVER_MIDI
+#undef DRIVER_ADLIB
+
+/* This audio module was selected with $0 */
+#define $sndsel
+
+/* These are the settings for the MIDI implementation.
+ * Values are meaningful only of DRIVER_MIDI has been set.
+ *
+ * The sound system has four channels.
+ * These are the default patch, maxvolume and modulation parameters.
+ *
+ * Examples:
+ *   43=cello     69=oboe     74=flute      119=synthdrm
+ *   31=gtrdistrt 25=gtrnylon 36=fretlsbass 81=squarewave
+ */
+#ifdef DRIVER_MIDI
+#define MIDI_PATCH    31,25, 36, 119
+#define MIDI_MAXVOL  150,170,127,80
+#define MIDI_NOTEADD   4,16, 16, 0
+#endif
+
+#endif	/* __jt10_config_h defined */
+EOF
+mv -f conftest.h config.h
+echo Done
+
+echo $ac_n "Writing Makefile.cfg... "$ac_c
+rm -f Makefile.cfg
+echo "# Generated automatically by $0" >Makefile.cfg
+echo "Oktober="$Oktober >> Makefile.cfg
+echo "CC="$CC >> Makefile.cfg
+echo "CFLAGS="$CFLAGS >> Makefile.cfg
+echo "CPPFLAGS="$CPPFLAGS >> Makefile.cfg
+echo "# You may add -Iwhatever to CPPFLAGS if you need" >> Makefile.cfg
+echo "LDFLAGS="$LDFLAGS >> Makefile.cfg
+echo "INSTALL="$INSTALL >> Makefile.cfg
+echo "LDLIBS="$LDLIBS >> Makefile.cfg
+echo "# You may add -Lwhatever to LDLIBS also if you need" >> Makefile.cfg
+if test "$Oktober" = yes; then
+cat >> ./Makefile.cfg <<EOF
+
+# I don't know how to make these files
+# non-required, optional, but I tried.
+intgen:     /okd/bc31/intgen/intgen
+	cp -fp \$< \$@;chmod 0755 \$@
+jt10pali.pcx: /okd/dp2/pict/jt10pali.pcx
+	\$(INSTALL) -m 0755 \$< \$@
+findbest: findbest.c
+	\$(CC) \$(LDFLAGS) \$(CFLAGS) -o \$@ \$<
+findbest.c: /okd/bc31/intgen/findbest.c
+	cp -fp \$< \$@;chmod 0755 \$@
+bin2c.c: /okd/bc31/bin2c/bin2c.c
+	\$(INSTALL) \$< \$@
+music_cv1d.c: /mod/nes/cv1d.s3m findbest intgen makemusa
+	./makemusa cD910 10 \$< \$*
+music_cv2b.c: /mod/nes/cv2b.s3m findbest intgen makemusa
+	./makemusa cD2275 5 \$< \$*
+music_tet1.c: /mod/nes/tetris_1.s3m findbest intgen makemusa
+	./makemusa cD910 10 \$< \$*
+music_tet4.c: /mod/nes/tetris_4.s3m findbest intgen makemusa
+	./makemusa cD5025 1 \$< \$*
+music_tetk.c: /mod/nes/tetris_k.s3m findbest intgen makemusa
+	./makemusa cD5300 10 \$< \$*
+music_tett.c: /mod/nes/tetris_t.s3m findbest intgen makemusa
+	./makemusa cD910 10 \$< \$*
+music_tetl.c: /mod/nes/tetris_l.s3m findbest intgen makemusa
+	./makemusa cD910 10 \$< \$*
+music_tetb.c: /mod/nes/tetris_b.s3m findbest intgen makemusa
+	./makemusa cD910 10 \$< \$*
+music_teta.c: /mod/nes/tetris_a.s3m findbest intgen makemusa
+	./makemusa cD1700 30 \$< \$*
+music_tetr.c: /mod/nes/tetris_r.s3m findbest intgen makemusa
+	./makemusa cD910 10 \$< \$*
+music_teto.c: /mod/nes/tetris_o.s3m findbest intgen makemusa
+	./makemusa cD3800 30 \$< \$*
+music_sols.c: /mod/nes/solstc2b.s3m findbest intgen makemusa
+	# Tried 34000, not found better
+	./makemusa cD2420 5 \$< \$*
+music_mm3p.c: /mod/nes/mman3_p.s3m findbest intgen makemusa
+	./makemusa cD910 10 \$< \$*
+music_mm31.c: /mod/nes/mman3_1.s3m findbest intgen makemusa
+	./makemusa cD1520 5 \$< \$*
+music_none.c: /mod/nes/empty.s3m findbest intgen makemusa
+	./makemusa cD9220 5 \$< \$*
+EOF
+fi
+
+echo Done
+
+rm -f conftest.c
+
+echo
+echo Configuration finished.
