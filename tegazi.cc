@@ -7,40 +7,36 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <sys/ioctl.h>
 
 #include <algorithm>
 #include <chrono>
-
-// #define clrscr()       puts ("\033[2J\033[1;1H")
-// #define gotoxy(x,y)    printf("\033[%d;%dH", y, x)
-// #define hidecursor()   puts ("\033[?25l")
-// #define showcursor()   puts ("\033[?25h")
-// #define bgcolor(c,s)   printf("\033[%dm" s, c ? c + 40 : 0)
 
 #define hidecursor() puts("\033[?25l")
 #define showcursor() puts("\033[?25h")
 #define clrscr()     puts("\033c")
 #define gotoxy(x,y)  printf("\033[%d;%dH", y, x)
-#define bgcolor(c,s) printf("\033[%dm" s, c ? c + 40 : 0)
+#define bgcolor(c,s)   printf("\033[%dm" s, c ? c + 40 : 0)
 
-const char keys[] = "asd q";
+const char keys[] = "awds q";
 #define KEY_LEFT   0
 #define KEY_ROTATE 1
 #define KEY_RIGHT  2
-#define KEY_DROP   3
-#define KEY_QUIT   4
+#define KEY_DOWN   3
+#define KEY_DROP   4
+#define KEY_QUIT   5
 
 static struct termios savemodes;
 static int havemodes = 0;
 
 // [#1]: For some reasons, termios x position 0 and 1 draws at the same place
 const auto Width = 12, Height = 25;
-const auto Occ = 0x10000u, Empty = 0u, Border = 2u;
+const auto Occ = 0x10000u, Empty = 0u, Border = 7u;
 
 int FrontBuffer[Height][Width];
 int BackBuffer[Height][Width];
 int Arena[Height][Width];
-constexpr int offset = 10; // without this, it is weird, see [#1]
+constexpr int offset = 5; // without this, it is weird, see [#1]
 
 unsigned long nFull, nList; // temporary calculation for cascade
 bool escaped=false, atground, ticked, dropping, kicked;
@@ -58,8 +54,12 @@ unsigned long Timer()
 inline
 int Level() {return (1 + lines/10);}
 
-void draw__(int x, int y, int c, const char *s=" ")
-{gotoxy(x, y); bgcolor(c, s);}
+void draw__(int x, int y, int c)
+{
+    gotoxy(x, y);
+    if (c==Empty) bgcolor(c, "  ");
+    else bgcolor(c, "[]");
+}
 
 int ttyInit()
 {
@@ -142,19 +142,19 @@ bool Occupied(int x, int y)
     return false;
 }
 
-void DrawBlock(int x, int y, int color, const char *s=" ", bool permanent=false)
+void DrawBlock(int x, int y, int color, bool permanent=false)
 {
     if (0<=x && x<Width && 0<=y &&y<Height)
     {
         FrontBuffer[y][x] = color;
-        if (permanent) Arena[y][x] = Occ;
+        if (permanent) Arena[y][x] = color==Empty ? Empty : Occ;
     }
 }
 
 template<typename T>
 void DrawRow(unsigned y, T getColor)
 {
-    for (int x=1; x<Width-1; ++x) DrawBlock(x, y, getColor(x, y));
+    for (int x=1; x<Width-1; ++x) DrawBlock(x, y, getColor(x));
 }
 
 template<bool WantFull>
@@ -166,7 +166,7 @@ bool TestFully(int y)
 
 void DrawPiece(Piece &piece, int color, bool permanent=false)
 {
-    piece>>[=](int x, int y) {if (y>=0) DrawBlock(x, y, color, " ", permanent); return false;};
+    piece>>[=](int x, int y) {if (y>=0) DrawBlock(x, y, color, permanent); return false;};
 }
 
 bool CollidePiece(const Piece &piece)
@@ -175,14 +175,16 @@ bool CollidePiece(const Piece &piece)
     {
         bool c = Occupied(x, y);
         if (c)
-        {gotoxy(50, 27); printf("%d %d\n", x, y);}
+        {
+            // gotoxy(50, 27); printf("%d %d\n", x, y);
+        }
         return c;
     };
 }
 
-int CascadeEmpty()
+int CascadeEmpty_old(int FirstY)
 {
-    static unsigned nFull, listFull;
+    unsigned nFull, listFull;
     nFull = nList = 0;
     for (int y=0; y<Height-1; ++y)
     {
@@ -192,25 +194,75 @@ int CascadeEmpty()
             listFull |= 1u<<y;
         }
     }
+    gotoxy(50, 27);
+    printf("full: %d", nFull);
+    gotoxy(50, 28);
+    printf("listFull: %X", listFull);
     if (nFull)
     {
-        int animx;
-        for (animx=1; animx<Width-1; ++animx)
+        // int animx;
+        // for (animx=1; animx<Width-1; ++animx)
+        // {
+        //     auto label = "SINGLEDOUBLETRIPLETETRIS"+(nFull-1)*6;
+        //     for (int y=0; y<Height-1;++y)
+        //         if (listFull & (1u<<y))
+        //             DrawBlock(animx, y, animx-2u < 6u ? 3 : Empty); // , animx-2u < 6u ? label[animx-2] : " "
+        // }
+        int target = Height-2;
+        for (int y=Height-2; y>=0; --y)
         {
-            auto label = "SINGLEDOUBLETRIPLETETRIS"+(nFull-1)*6;
-            for (int y=0; y<Height-1;++y)
-                if (listFull & (1u<<y))
-                    DrawBlock(animx, y, animx-2u < 6u ? 3 : Empty, animx-2u < 6u ? label[animx-2] : " ");
-        }
-        int target=Height-2, y=Height-2;
-        for (; y>=0; --y)
-        {
-            if (!listFull & (1u<<y))
+            if (!(listFull & (1u<<y)))
             {
-                DrawRow(target--, [=](unsigned x) {return FrontBuffer[y][x];});
+                // cascade the nonfull lines to the empty one
+                // they could be non-adjacent lines
+                // DrawRow(target--, [=](unsigned x) {return FrontBuffer[y][x];});
+                // gotoxy(30, y);
+                // printf("cleared");
+                for (int x=1, ny=target--; x<Width-1; ++x)
+                {
+                    // DrawBlock(x, ny, FrontBuffer[y][x], true);
+                    FrontBuffer[ny][x] = FrontBuffer[y][x];
+                    Arena[ny][x]       = Arena[y][x];
+                }
             }
         }
+        // clear the excess and cascade the above down, if there is any
+        for (int i=(int)nFull; i-->0; --target)
+            for (int x=1; x<Width-1; ++x)
+            {
+                // DrawBlock(x, target--, Empty, true);
+                FrontBuffer[target][x] = Empty;
+                Arena[target][x]       = 0;
+            }
+    }
+    return nFull;
+}
 
+int CascadeEmpty(int FirstY)
+{
+    (void)FirstY;
+    int nFull = 0;
+    // n! cascade algorithm
+    gotoxy(0, 28);
+    for (int y=Height-2; y>0; --y)
+    {
+        if (TestFully<true>(y))
+        {
+            printf(" %d", y);
+            int t = y;
+            for (int dy=y-1; dy>0; --dy, --t, ++nFull)
+            {
+                for (int x=1; x<Width-1; ++x)
+                {
+                    Arena[t][x]       = Arena[dy][x];
+                    FrontBuffer[t][x] = FrontBuffer[dy][x];
+                }
+            }
+            ++y;
+        }
+    }
+    return nFull;
+}
 
 Piece storage[2];
 void MakeNext()
@@ -232,14 +284,14 @@ void MakeNext()
     };
 
     fx();
-    storage[1]>>[=](int x, int y) {draw__(x, y, Empty); return false;};
+    storage[1]>>[=](int x, int y) {draw__(2*x, y, Empty); return false;};
     storage[0] = storage[1];
     unsigned rnd = (std::rand() / double(RAND_MAX)) * (4 * sizeof(b) / sizeof(*b));
     storage[1] = b[rnd / 4];
     storage[1].r = rnd % 4;
     fx();
     c = storage[1].color;
-    storage[1]>>[=](int x, int y) {draw__(x, y, c); return false;};
+    storage[1]>>[=](int x, int y) {draw__(2*x, y, c); return false;};
 }
 
 int Update()
@@ -251,12 +303,12 @@ int Update()
             if (FrontBuffer[y][x] - BackBuffer[y][x]) {
                 int c = FrontBuffer[y][x]; /* color */
                 BackBuffer[y][x] = c;
-                draw__(x + offset, y, c);
+                draw__(2*x + offset, y, c);
             }
         }
     }
     /* Update points and level */
-    gotoxy(Width + offset, 10);
+    gotoxy(2*Width + offset, 10);
     printf("Keys:");
     fflush(stdout);
     return getchar();
@@ -264,10 +316,20 @@ int Update()
 
 int main()
 {
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    // printf("%d %d", w.ws_row, w.ws_col);
+    if (w.ws_row < 30 || w.ws_col < 156)
+    {
+        fprintf(stderr, "WARNING: Terminal window too small, try zooming out on your terminal\n");
+        exit(1);
+    }
+
     if (ttyInit()==-1)
         return(-1);
     sigInit();
     clrscr();
+
     for (int y=Height-1; y>=0; --y)
         for (int x=Width-1; x>=0; --x)
         {
@@ -282,17 +344,17 @@ int main()
     while (!escaped)
     {
         Piece n = cur;
-        bool per=false;
+        bool permanent = false;
         if (k<0)
         {
             if (!CollidePiece(n<<[](Piece&p){++p.y;})) ++n.y;
             else
             {
-                gotoxy(30, 10);
-                printf("collide at %d %d", n.x, n.y);
+                // gotoxy(30, 10);
+                // printf("collide at %d %d", n.x, n.y);
                 DrawPiece(n, n.color, true);
                 ++scores;
-                lines += CascadeEmpty();
+                lines += CascadeEmpty(0);
                 MakeNext();
                 if (CollidePiece(cur)) k = keys[KEY_QUIT];
                 continue;
@@ -312,7 +374,12 @@ int main()
                 // try wall kick
                 if (!CollidePiece(n<<[](Piece&p){++p.x;})) {++n.x;}
                 if (!CollidePiece(n<<[](Piece&p){--p.x;})) {--n.x;}
+                else --n.r;
             }
+        }
+        if (k==keys[KEY_DOWN])
+        {
+            if (!CollidePiece(n<<[](Piece&p){++p.y;})) ++n.y;
         }
         if (k==keys[KEY_DROP])
         {
@@ -321,34 +388,36 @@ int main()
         }
         if (k==keys[KEY_QUIT]) {break;}
 
-        gotoxy(5, 25);
-        printf("%d", n.color);
-        gotoxy(5, 27);
-        printf("%d %d %d", n.x, n.y, n.r);
+        // gotoxy(5, 25);
+        // printf("%d", n.color);
+        // gotoxy(5, 27);
+        // printf("%d %d %d", n.x, n.y, n.r);
 
         for (int y = 0; y < Height; ++y)
         {
+            gotoxy(0, y);
+            printf("%2d", y);
             gotoxy(offset + 50, y);
             for (int x = 0; x < Width; ++x)
             {
-                printf("%d ", FrontBuffer[y][x]);
+                printf("%5.X ", Arena[y][x]);
             }
             printf("\n");
         }
 
-        DrawPiece(cur, Empty);
+        DrawPiece(cur, Empty, permanent);
         cur = n;
-        DrawPiece(cur, cur.color);
+        DrawPiece(cur, cur.color, permanent);
         k = Update();
     }
-    // clrscr();
-    // printf("Your score is %ld\n", scores);
-    // printf("You cleared %ld lines\n", lines);
-    // printf("It was hard, wasn't it\n");
-    // printf("But this is just the beginning\n");
-    // printf("This is TEgazi v0\n");
-    // printf("It's still a work-in-progress\n");
-    // printf("By salaadas, from vietnam\n");
+    clrscr();
+    printf("Your score is %ld\n", scores);
+    printf("You cleared %ld lines\n", lines);
+    printf("It was hard, wasn't it\n");
+    printf("But this is just the beginning\n");
+    printf("This is TEgazi v0\n");
+    printf("It's still a work-in-progress\n");
+    printf("By salaadas, from vietnam\n");
     if (ttyExit()==-1)
         return(-1);
     return(0);
