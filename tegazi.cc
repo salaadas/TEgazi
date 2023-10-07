@@ -1,5 +1,7 @@
+// TODO: Make 2 timers: one for the human, one for the AI
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <sys/wait.h>
@@ -7,6 +9,8 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <utility>
+#include <vector>
 
 #define hidecursor() puts("\033[?25l")
 #define showcursor() puts("\033[?25h")
@@ -75,8 +79,7 @@ void exitHandler(int signo)
 static void alarmHandler(int signo)
 {
     static long h[4];
-    if (!signo) h[3] = 250*1000;
-    // std::max(atground ? 4 : 1, int((17 - Level())*0.8));
+    if (!signo) h[3] = 500*1000;
     setitimer(0, (struct itimerval *)h, 0);
 }
 
@@ -125,7 +128,7 @@ struct TetrisPlayGround
     unsigned long nFull, nList; // temporary calculation for cascade
     int offset;
 
-    TetrisPlayGround(unsigned o=10) : offset(o) { }
+    TetrisPlayGround(unsigned o=20) : offset(o) { }
     bool Occupied(int x, int y)
     {
         if (x<1 || (x>Width-2) || (y>=0 && Arena[y][x]&Occ)) return true;
@@ -172,7 +175,7 @@ struct TetrisPlayGround
     int CascadeEmpty(int FirstY)
     {
         (void)FirstY;
-        int nFull = 0;
+        nFull = 0;
         // n! cascade algorithm
         // gotoxy(0, 28);
         for (int y=Height-2; y>0; --y)
@@ -211,7 +214,8 @@ struct Tetris : TetrisPlayGround
     unsigned long scores, lines;
     bool escaped, atground, ticked, dropping, kicked;
 
-    Tetris()
+    Tetris(unsigned o=20)
+        : TetrisPlayGround(o)
     {
         for (int y=Height-1; y>=0; --y)
         {
@@ -225,7 +229,8 @@ struct Tetris : TetrisPlayGround
         MakeNext();
         MakeNext();
         DrawPiece(cur, cur.color);
-        escaped = false;
+        escaped = atground = ticked = dropping = kicked = false;
+        scores = lines = false;
     }
 
     inline
@@ -255,17 +260,17 @@ struct Tetris : TetrisPlayGround
         int c = Empty;
         auto fx = [&]() {
             storage[0].x = 4; storage[0].y = -1;
-            storage[1].x = Width + offset; storage[1].y = Height - 4;
+            storage[1].x = Width + 4/2; storage[1].y = Height - 4;
         };
         fx();
-        storage[1]>>[=](int x, int y) {draw__(2*x, y, Empty); return false;};
+        storage[1]>>[=](int x, int y) {draw__(2*x + offset, y, Empty); return false;};
         storage[0] = storage[1];
         unsigned rnd = (std::rand() / double(RAND_MAX)) * (4 * sizeof(b) / sizeof(*b));
         storage[1] = b[rnd / 4];
         storage[1].r = rnd % 4;
         fx();
         c = storage[1].color;
-        storage[1]>>[=](int x, int y) {draw__(2*x, y, c); return false;};
+        storage[1]>>[=](int x, int y) {draw__(2*x + offset, y, c); return false;};
     }
 
     int Update()
@@ -371,8 +376,162 @@ struct Tetris : TetrisPlayGround
 
 struct TetrisHuman : Tetris
 {
+    TetrisHuman(unsigned o) : Tetris(o) { }
     virtual char MyGetChar()
     {return getchar();}
+};
+
+struct AIEngine : TetrisPlayGround
+{
+    typedef std::pair<int, int> scoring; // score, priority
+    typedef std::pair<int, int> position; // x, rot
+    std::vector<position> positions;
+
+    struct Recursion
+    {
+        decltype(Arena) backup;
+        unsigned testingPos;
+        scoring bestScore, baseScore;
+        position bestPos;
+
+        Recursion() : bestPos({5, 1}) { }
+    } data[3];
+    unsigned ply, plyLimit;
+    bool confident, restart, resting;
+
+    int AIRun(const decltype(Arena) &inArena, const Piece *storage)
+    {
+        std::memcpy(Arena, inArena, sizeof(Arena));
+        const auto
+            landingHeightPen = -1, erodedPieceCellMetricFactor = 2,
+            rowTransitionPen = -2, columnTransitionPen         = -2,
+            buriedHolePen    = -8, wellPen                     = -2;
+        confident = false;
+    Restart:
+        restart = false;
+        resting = false;
+        positions.clear();
+        for (int x=-1; x<Width; ++x)
+            for (unsigned rot=0; rot<4; ++rot)
+                positions.push_back({x, rot});
+        std::random_shuffle(positions.begin(), positions.end());
+        {
+            int heapRoom = -(storage->y+1);
+            while(TestFully<false>(heapRoom)) ++heapRoom;
+            plyLimit = heapRoom<=1 ? 1 : heapRoom<=4 ? 2 : 3;
+        }
+        ply = 0;
+
+    Recursion:
+        std::memcpy(data[ply].backup, Arena, sizeof(Arena));
+        if (!confident) data[ply].bestScore = {-999999999, 0};
+        for (;;)
+        {
+            data[ply].testingPos = 0;
+            do {
+                if (restart) goto Restart;
+                std::memcpy(data[0].backup, Arena, sizeof(Arena));
+
+                std::memcpy(Arena, data[ply].backup, sizeof(Arena));
+                {
+                    Piece n = storage[ply];
+                    n.x = positions[data[ply].testingPos].first;
+                    n.r = positions[data[ply].testingPos].second;
+                    if (ply) n.y = -1;
+                    if (ply==0 && n.y>=0)
+                    {
+                        for (Piece q, t=*storage; t.x!=n.x && t.r!=n.r; )
+                        {
+                            if ((t.r==n.r || (q=t, ++t.r, CollidePiece(t) && (t=q, true)))
+                                && (t.x<=n.x || (q=t, --t.x, CollidePiece(t) && (t=q, true)))
+                                && (t.x>=n.x || (q=t, ++t.x, CollidePiece(t) && (t=q, true))))
+                                goto NextMove;
+                        }
+                    }
+                    do ++n.y; while(!CollidePiece(n));
+                    --n.y; // move up one block because it will be overdropped
+                    if (n.y<0 || CollidePiece(n)) goto NextMove; // cannot place piece, lost
+                    DrawPiece(n, n.color, true);
+
+                    // Find the extents of the piece and how many cells
+                    // of the piece contribute into full (completed) rows
+                    char full[4] = {-1, -1, -1, -1};
+                    int minY=n.y+9, maxY=n.y-9,
+                        minX=n.x+9, maxX=n.x-9,
+                        numEroded=0;
+                    auto minMax = [](int &min, int &max, int v) {if (v<min)min=v; if (v>max)max=v;};
+                    n>>[&](int x, int y) -> bool
+                    {
+                        minMax(minX, maxX, x); minMax(minY, maxY, y);
+                        if (full[y-n.y]<0) full[y-n.y] = TestFully<true>(y);
+                        numEroded += full[y-n.y];
+                        return false;
+                    };
+                    CascadeEmpty(n.y);
+                    int penalties = 0;
+                    for (int y=0; y<Height-1; ++y)
+                    {
+                        for (int q=1,r,x=1; x<Width; ++x, q=r)
+                        {
+                            if (q != (r=Occupied(x,y)))
+                            {
+                                penalties += rowTransitionPen;
+                            }
+                        }
+                    }
+                    for (int x=1; x<Width-1; ++x)
+                    {
+                        for (int ceil=0,q=0,r,y=0; y<Height; ++y,q=r)
+                        {
+                            if (q != (r=Occupied(x,y))) penalties+=columnTransitionPen;
+                            if (r) {ceil=1; continue;}
+                            if (ceil) penalties+=buriedHolePen;
+                            if (Occupied(x-1,y) && Occupied(x+1,y))
+                                for (int y2=y; y2<Height-1 && !Occupied(x,y2); ++y2)
+                                    penalties+=wellPen;
+                        }
+                    }
+                    data[ply].baseScore = {
+                        (erodedPieceCellMetricFactor * int(nFull) * numEroded + penalties + landingHeightPen * ((Height-1)*2 - (minY+maxY))) * 4,
+                        50 * std::abs(Width-2-minX-maxX) + (minX+maxX < Width-2 ? 10 : 0) - n.r
+                    };
+                }
+                if (ply+1 < plyLimit)
+                {
+                    ++ply; goto Recursion;
+                Unrecursion:
+                    --ply;
+                }
+                if (data[ply].bestScore < data[ply].baseScore)
+                {
+                    data[ply].bestScore = data[ply].baseScore;
+                    data[ply].bestPos   = positions[data[ply].testingPos];
+                }
+            NextMove:
+                ;
+            } while (++data[ply].testingPos < positions.size());
+
+            if (ply > 0)
+            {
+                data[ply-1].baseScore.first += data[ply].bestScore.first >> (2-ply);
+                goto Unrecursion;
+            }
+            for (confident = resting = true; resting; ) // do something
+                ;
+        }
+    }
+};
+
+struct TetrisAI : Tetris, AIEngine
+{
+    TetrisAI(unsigned o) : Tetris(o) { }
+    virtual char MyGetChar()
+    {
+        if (storage->r != data[0].bestPos.second) return 'w';
+        if (storage->y >= 0 && storage->x > data[0].bestPos.first) return 'a';
+        if (storage->y >= 0 && storage->x < data[0].bestPos.first) return 'd';
+        return confident ? 's' : -1;
+    }
 };
 
 int main()
@@ -380,7 +539,7 @@ int main()
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     // printf("%d %d", w.ws_row, w.ws_col);
-    if (w.ws_row < 30 || w.ws_col < 156)
+    if (w.ws_row < 28 || w.ws_col < 145)
     {
         fprintf(stderr, "WARNING: Terminal window too small, try zooming out on your terminal\n");
         exit(1);
@@ -390,10 +549,17 @@ int main()
     sigInit();
 
     clrscr();
-    TetrisHuman man;
+    TetrisHuman man(10);
+    TetrisAI    com(80);
     while (!(quit || man.escaped))
     {
         switch (man.GameLoop())
+        {
+            case GAME_CONTINUE: continue; break;
+            default: break;
+        }
+
+        switch (com.GameLoop())
         {
             case GAME_CONTINUE: continue; break;
             default: break;

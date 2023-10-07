@@ -358,7 +358,7 @@ struct Tetris : TetrisPlayGround
         //     ++shadow.y;
         cur = n;
         DrawPiece(cur, cur.color, permanent);
-        // DrawPiece(shadow, 7u);
+        // DrawPiece(shadow, 47);
         k = Update();
         // DrawPiece(shadow, Empty);
         DrawPiece(cur, Empty, permanent);
