@@ -16,7 +16,7 @@
 #define showcursor() puts("\033[?25h")
 #define clrscr()     puts("\033c")
 #define gotoxy(x,y)  printf("\033[%d;%dH", y, x)
-#define bgcolor(c,s)   printf("\033[%dm" s, c ? c + 40 : 0)
+#define bgcolor(c,s) printf("\033[%dm" s, c ? c + 40 : 0)
 
 const char keys[] = "awds q";
 #define KEY_LEFT   0
@@ -93,9 +93,8 @@ void exitHandler(int signo)
 static void alarmHandler(int signo)
 {
     static long h[4];
-    if (!signo) h[3] = 500*1000;
+    if (!signo) h[3] = 250*1000;
     // std::max(atground ? 4 : 1, int((17 - Level())*0.8));
-    h[3] -= h[3] / (3000 - 10 * Level());
     setitimer(0, (struct itimerval *)h, 0);
 }
 
@@ -250,7 +249,8 @@ int CascadeEmpty(int FirstY)
         {
             printf(" %d", y);
             int t = y;
-            for (int dy=y-1; dy>0; --dy, --t, ++nFull)
+            ++nFull;
+            for (int dy=y-1; dy>0; --dy, --t)
             {
                 for (int x=1; x<Width-1; ++x)
                 {
@@ -276,6 +276,15 @@ void MakeNext()
             { { 0x08C4,0x006C,0x08C4,0x006C }, 0,0, 5,0 }, // S
             { { 0x00E4,0x04C4,0x04E0,0x0464 }, 0,0, 6,0 }, // T
             { { 0x0264,0x00C6,0x0264,0x00C6 }, 0,0, 7,0 }, // Z
+            { { 0x0272,0x0272,0x0272,0x0272 }, 0,0, 2,0 }, // +
+            { { 0x0E44,0x02E2,0x044E,0x08E8 }, 0,0, 3,0 }, // T5
+            { { 0x00AE,0x0C8C,0x00EA,0x0626 }, 0,0, 4,0 }, // C
+            { { 0x0664,0x0E60,0x2660,0x0670 }, 0,0, 5,0 }, // P
+            { { 0x0662,0x0760,0x4660,0x06E0 }, 0,0, 6,0 }, // Q
+            { { 0x4444,0x00F0,0x4444,0x00F0 }, 0,0, 1,0 }, // I
+            { { 0x0472,0x0362,0x0271,0x0236 }, 0,0, 7,0 }, // R
+            { { 0x0172,0x0263,0x0274,0x0632 }, 0,0, 2,0 }, // F
+
         };
     int c = Empty;
     auto fx = []() {
@@ -405,10 +414,15 @@ int main()
             printf("\n");
         }
 
-        DrawPiece(cur, Empty, permanent);
+        Piece shadow = n;
+        for (; !CollidePiece(shadow<<[](Piece&p){++p.y;}); )
+            ++shadow.y;
         cur = n;
         DrawPiece(cur, cur.color, permanent);
+        DrawPiece(shadow, 7u);
         k = Update();
+        DrawPiece(shadow, Empty);
+        DrawPiece(cur, Empty, permanent);
     }
     clrscr();
     printf("Your score is %ld\n", scores);
